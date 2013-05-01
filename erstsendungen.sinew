@@ -1,0 +1,36 @@
+require 'icalendar'
+
+get 'http://www.tatort-fundus.de/web/folgen/die-naechsten-erstsendungen/'
+
+rows = []
+noko.css('.content_normal2 table[width="455"] tr').each do |item|
+  link = item.css('td:nth-child(2) a').first
+  rows << {
+    nummer: item.css('td:nth-child(1)').text,
+    titel: item.css('td:nth-child(2)').text,
+    kommissare: item.css('td:nth-child(3)').text,
+    datum: item.css('td:nth-child(4)').text,
+    sendeanstalt: item.css('td:nth-child(5)').text,
+    url: link ? link.attribute('href').value : nil
+  }
+end
+
+# iCal export
+calendar = Icalendar::Calendar.new
+calendar.timezone do
+  timezone_id 'Europe/Berlin'
+end
+
+rows.each do |row|
+  event = Icalendar::Event.new
+  event.summary = "Tatort: #{row[:titel]}"
+  event.description = "#{row[:kommissare]} (##{row[:nummer]}, #{row[:sendeanstalt]})"
+  event.start = DateTime.parse("#{row[:datum]} 20:15:00")
+  event.end = DateTime.parse("#{row[:datum]} 21:45:00")
+  event.klass = "PUBLIC"
+  event.uid = event.url = row[:url]
+  calendar.add_event event
+end
+
+calendar.publish
+file = File.open('./export/erstsendungen.ics', 'w') { |f| f.write calendar.to_ical }

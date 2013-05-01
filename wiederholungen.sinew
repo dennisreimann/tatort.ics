@@ -1,0 +1,41 @@
+require 'icalendar'
+
+get 'http://www.tatort-fundus.de/web/folgen/wh.html'
+
+rows = []
+noko.css('.wh_tabelle center table tr').each_with_index do |item, index|
+  next if index == 0
+  link = item.css('td:nth-child(3) a').first
+  titel_nummer = item.css('td:nth-child(3)').text.match(/(\d+)/)
+  rows << {
+    datum: item.css('td:nth-child(1)').text,
+    program: item.css('td:nth-child(2)').text,
+    nummer: titel_nummer ? titel_nummer[0] : nil,
+    titel: item.css('td:nth-child(3) a').text,
+    kommissare: item.css('td:nth-child(4)').text,
+    sendeanstalt: item.css('td:nth-child(5)').text,
+    url: link ? link.attribute('href').value : nil
+  }
+end
+
+# iCal export
+calendar = Icalendar::Calendar.new
+calendar.timezone do
+  timezone_id 'Europe/Berlin'
+end
+
+rows.each do |row|
+  start = DateTime.strptime(row[:datum], "%d.%m %H:%M") rescue nil
+  next unless start
+  event = Icalendar::Event.new
+  event.summary = "Tatort (WH): #{row[:titel]}"
+  event.description = "#{row[:kommissare]} (##{row[:nummer]}, #{row[:sendeanstalt]})"
+  event.start = start
+  event.end = (start.to_time + 90*60).to_datetime
+  event.klass = "PUBLIC"
+  event.uid = row[:nummer]
+  calendar.add_event event
+end
+
+calendar.publish
+file = File.open('./export/wiederholungen.ics', 'w') { |f| f.write calendar.to_ical }
