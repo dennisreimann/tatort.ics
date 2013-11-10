@@ -5,15 +5,16 @@ get 'http://www.tatort-fundus.de/web/folgen/wh.html'
 rows = []
 noko.css('.wh_tabelle center table tr').each_with_index do |item, index|
   next if index == 0
-  link = item.css('td:nth-child(3) a').first
-  titel_nummer = item.css('td:nth-child(3)').text.match(/(\d+)/)
+  tds = item.css('td')
+  link = tds[2].css('a').first
+  titel_nummer = tds[2].text.match(/(\d+)/)
   rows << {
-    datum: item.css('td:nth-child(1)').text,
-    program: item.css('td:nth-child(2)').text,
+    datum: tds[0].text,
+    program: tds[1].text,
     nummer: titel_nummer ? titel_nummer[0] : nil,
-    titel: item.css('td:nth-child(3) a').text,
-    kommissare: item.css('td:nth-child(4)').text,
-    sendeanstalt: item.css('td:nth-child(5)').text,
+    titel: link ? link.text : tds[2].text,
+    kommissare: tds[3].text,
+    sendeanstalt: tds[4].text,
     url: link ? link.attribute('href').value : nil
   }
 end

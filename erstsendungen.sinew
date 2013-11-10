@@ -4,13 +4,14 @@ get 'http://www.tatort-fundus.de/web/folgen/die-naechsten-erstsendungen/'
 
 rows = []
 noko.css('.content_normal2 table[width="455"] tr').each do |item|
-  link = item.css('td:nth-child(2) a').first
+  tds = item.css('td')
+  link = tds[1].css('a').first
   rows << {
-    nummer: item.css('td:nth-child(1)').text,
-    titel: item.css('td:nth-child(2)').text,
-    kommissare: item.css('td:nth-child(3)').text,
-    datum: item.css('td:nth-child(4)').text,
-    sendeanstalt: item.css('td:nth-child(5)').text,
+    nummer: tds[0].text,
+    titel: tds[1].text,
+    kommissare: tds[2].text,
+    datum: tds[3].text,
+    sendeanstalt: tds[4].text,
     url: link ? link.attribute('href').value : nil
   }
 end
