@@ -4,16 +4,30 @@ get 'http://www.tatort-fundus.de/web/folgen/die-naechsten-erstsendungen/'
 
 rows = []
 noko.css('.content_normal2 table[width="455"] tr').each do |item|
-  tds = item.css('td')
-  link = tds[1].css('a').first
-  rows << {
-    nummer: tds[0].text,
-    titel: tds[1].text,
-    kommissare: tds[2].text,
-    datum: tds[3].text,
-    sendeanstalt: tds[4].text,
-    url: link ? link.attribute('href').value : nil
-  }
+  begin
+    tds = item.css('td')
+    link = tds[1].css('a').first
+    nummer = tds[0].text
+    titel = tds[1].text
+    kommissare = tds[2].text
+    datum = tds[3].text
+    sendeanstalt = tds[4].text
+    start = DateTime.parse("#{datum} 20:15:00")
+    ende = DateTime.parse("#{datum} 21:45:00")
+    url = link ? link.attribute('href').value : nil
+    rows << {
+      nummer: nummer,
+      titel: titel,
+      kommissare: kommissare,
+      datum: datum,
+      start: start,
+      ende: ende,
+      sendeanstalt: sendeanstalt,
+      url: url
+    }
+  rescue Exception => error
+    puts "#{nummer}: ---- Fehler: #{error} ----\n\n"
+  end
 end
 
 # iCal export
@@ -26,11 +40,13 @@ rows.each do |row|
   event = Icalendar::Event.new
   event.summary = "Tatort: #{row[:titel]}"
   event.description = "#{row[:kommissare]} (##{row[:nummer]}, #{row[:sendeanstalt]})"
-  event.start = DateTime.parse("#{row[:datum]} 20:15:00")
-  event.end = DateTime.parse("#{row[:datum]} 21:45:00")
+  event.start = row[:start]
+  event.end = row[:end]
   event.klass = "PUBLIC"
   event.uid = event.url = row[:url]
   calendar.add_event event
+
+  puts "#{row[:nummer]}: #{row[:titel]} (#{row[:datum]})"
 end
 
 calendar.publish

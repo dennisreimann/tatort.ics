@@ -5,18 +5,24 @@ get 'http://www.tatort-fundus.de/web/folgen/wh.html'
 rows = []
 noko.css('.wh_tabelle center table tr').each_with_index do |item, index|
   next if index == 0
-  tds = item.css('td')
-  link = tds[2].css('a').first
-  titel_nummer = tds[2].text.match(/(\d+)/)
-  rows << {
-    datum: tds[0].text,
-    program: tds[1].text,
-    nummer: titel_nummer ? titel_nummer[0] : nil,
-    titel: link ? link.text : tds[2].text,
-    kommissare: tds[3].text,
-    sendeanstalt: tds[4].text,
-    url: link ? link.attribute('href').value : nil
-  }
+  begin
+    tds = item.css('td')
+    datum = tds[0].text
+    programm = tds[1].text
+    link = tds[2].css('a').first
+    titel_nummer = tds[2].text.match(/(\d+)/)
+    rows << {
+      datum: datum,
+      programm: programm,
+      nummer: titel_nummer ? titel_nummer[0] : nil,
+      titel: link ? link.text : tds[2].text,
+      kommissare: tds[3].text,
+      sendeanstalt: tds[4].text,
+      url: link ? link.attribute('href').value : nil
+    }
+  rescue Exception => error
+    puts "#{nummer}: ---- Fehler: #{error} ----\n\n"
+  end
 end
 
 # iCal export
