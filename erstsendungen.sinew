@@ -41,7 +41,7 @@ rows.each do |row|
   event.summary = "Tatort: #{row[:titel]}"
   event.description = "#{row[:kommissare]} (##{row[:nummer]}, #{row[:sendeanstalt]})"
   event.start = row[:start]
-  event.end = row[:end]
+  event.end = row[:ende]
   event.klass = "PUBLIC"
   event.uid = event.url = row[:url]
   calendar.add_event event
