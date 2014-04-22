@@ -1,6 +1,6 @@
 require 'icalendar'
 
-get 'http://www.tatort-fundus.de/web/folgen/wh.html'
+get 'http://www.tatort-fundus.de/web/folgen/die-naechsten-wiederholungen.html'
 
 rows = []
 noko.css('.wh_tabelle center table tr').each_with_index do |item, index|
@@ -42,6 +42,8 @@ rows.each do |row|
   event.klass = "PUBLIC"
   event.uid = row[:nummer]
   calendar.add_event event
+
+  puts "#{row[:nummer]}: #{row[:titel]} (#{row[:datum]}, #{row[:sendeanstalt]})"
 end
 
 calendar.publish
