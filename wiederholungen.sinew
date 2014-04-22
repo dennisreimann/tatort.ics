@@ -1,4 +1,6 @@
+require 'tzinfo'
 require 'icalendar'
+require 'icalendar/tzinfo'
 
 get 'http://www.tatort-fundus.de/web/folgen/die-naechsten-wiederholungen.html'
 
@@ -27,21 +29,24 @@ end
 
 # iCal export
 calendar = Icalendar::Calendar.new
-calendar.timezone do
-  timezone_id 'Europe/Berlin'
-end
+
+# Timezone
+tzid = "Europe/Berlin"
+timezone = TZInfo::Timezone.get tzid
+calendar.add timezone.ical_timezone(DateTime.new)
 
 rows.each do |row|
   start = DateTime.strptime(row[:datum], "%d.%m %H:%M") rescue nil
   next unless start
-  event = Icalendar::Event.new
-  event.summary = "Tatort (WH): #{row[:titel]}"
-  event.description = "#{row[:kommissare]} (##{row[:nummer]}, #{row[:sendeanstalt]})"
-  event.start = start
-  event.end = (start.to_time + 90*60).to_datetime
-  event.klass = "PUBLIC"
-  event.uid = row[:nummer]
-  calendar.add_event event
+
+  calendar.event do
+    uid         row[:nummer]
+    dtstart     start.tap { |d| d.ical_params = {'TZID' => tzid} }
+    dtend       (start.to_time + 90*60).to_datetime.tap { |d| d.ical_params = {'TZID' => tzid} }
+    summary     "Tatort (WH): #{row[:titel]}"
+    description "#{row[:kommissare]} (##{row[:nummer]}, #{row[:sendeanstalt]})"
+    klass       "PUBLIC"
+  end
 
   puts "#{row[:nummer]}: #{row[:titel]} (#{row[:datum]}, #{row[:sendeanstalt]})"
 end

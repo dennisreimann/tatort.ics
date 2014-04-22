@@ -21,6 +21,7 @@ GEM
       trollop
     stringex (2.5.2)
     trollop (2.0)
+    tzinfo (0.3.39)
 
 PLATFORMS
   ruby
@@ -28,3 +29,4 @@ PLATFORMS
 DEPENDENCIES
   icalendar
   sinew
+  tzinfo (~> 0.3.39)
