@@ -1,0 +1,4 @@
+#!/bin/bash
+set -e
+
+scp -r export/* uberdennis:html/stuff/tatort.ics/export
