@@ -1,3 +1,5 @@
 /.bundle
 /export/*
 vendor
+vendor/ruby
+vendor/ruby

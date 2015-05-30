@@ -5,7 +5,7 @@ require 'icalendar/tzinfo'
 get 'http://www.tatort-fundus.de/web/folgen/die-naechsten-erstsendungen/'
 
 rows = []
-noko.css('.content_normal2 table[width="455"] tr').each do |item|
+noko.css('table[width="440"] tr').each do |item|
   begin
     tds = item.css('td')
     link = tds[1].css('a').first
