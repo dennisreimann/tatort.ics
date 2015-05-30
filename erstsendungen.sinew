@@ -5,13 +5,14 @@ require 'icalendar/tzinfo'
 get 'http://www.tatort-fundus.de/web/folgen/die-naechsten-erstsendungen/'
 
 rows = []
-noko.css('table[width="440"] tr').each do |item|
+noko.css('table[width="440"] tr').each_with_index do |item, index|
   begin
     tds = item.css('td')
     link = tds[1].css('a').first
     nummer = tds[0].text
     titel = tds[1].text
     kommissare = tds[2].text
+    next if titel == "Folge" or kommissare == "Ermittler"
     datum = tds[3].text
     sendeanstalt = tds[4].text
     start = DateTime.parse("#{datum} 20:15:00")
